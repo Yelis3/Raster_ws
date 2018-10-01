@@ -1,7 +1,28 @@
-import frames.timing.*;
-import frames.primitives.*;
-import frames.core.*;
-import frames.processing.*;
+import processing.core.*; 
+import processing.data.*; 
+import processing.event.*; 
+import processing.opengl.*; 
+
+import frames.timing.*; 
+import frames.primitives.*; 
+import frames.core.*; 
+import frames.processing.*; 
+
+import java.util.HashMap; 
+import java.util.ArrayList; 
+import java.io.File; 
+import java.io.BufferedReader; 
+import java.io.PrintWriter; 
+import java.io.InputStream; 
+import java.io.OutputStream; 
+import java.io.IOException; 
+
+public class raster_ws extends PApplet {
+
+
+
+
+
 
 // 1. Frames' objects
 Scene scene;
@@ -22,9 +43,9 @@ boolean debug = true;
 // 3. Use FX2D, JAVA2D, P2D or P3D
 String renderer = P3D;
 
-void setup() {
+public void setup() {
   //use 2^n to change the dimensions
-  size(1024, 810, renderer);
+  
   scene = new Scene(this);
   if (scene.is3D())
   scene.setType(Scene.Type.ORTHOGRAPHIC);
@@ -57,7 +78,7 @@ void setup() {
   randomizeTriangle();
 }
 
-void draw() {
+public void draw() {
   background(0);
   stroke(0, 255, 0);
   if (gridHint)
@@ -74,7 +95,7 @@ void draw() {
 
 // Implement this function to rasterize the triangle.
 // Coordinates are given in the frame system which has a dimension of 2^n
-void triangleRaster() {
+public void triangleRaster() {
   // frame.location converts points from world to frame
   // here we convert v1 to illustrate the idea
 
@@ -91,7 +112,7 @@ void triangleRaster() {
   int potencia = (int)Math.pow(2, n-1);
   for(float i = - potencia; i < potencia; i++){
     for(float j = - potencia; j <= potencia; j++){
-      Vector p = new Vector(i+0.5, j+0.5);
+      Vector p = new Vector(i+0.5f, j+0.5f);
       if(isInside(p)) {
         colorPixel(p, antiAliasing(i,j));
         rect(i, j, 1, 1);
@@ -102,8 +123,8 @@ void triangleRaster() {
   popStyle();
 }
 
-float antiAliasing(float x, float y){
-  float pixelWidth = 1/(anti*1.0);
+public float antiAliasing(float x, float y){
+  float pixelWidth = 1/(anti*1.0f);
   int subPixels=0;
   for(int i=0; i < anti;i++){
     for(int j = 0; j < anti ;j++){
@@ -116,11 +137,11 @@ float antiAliasing(float x, float y){
     }
   }
 
-  float antialiasing = Math.round(255*(subPixels/(1.0 * anti * anti)));;
+  float antialiasing = Math.round(255*(subPixels/(1.0f * anti * anti)));;
   return antialiasing;
 }
 
-void colorPixel(Vector p, float antiali) {
+public void colorPixel(Vector p, float antiali) {
   Float color_1 = edgeFunction(frame.location(v2), frame.location(v3), p);
   Float color_3 = edgeFunction(frame.location(v1), frame.location(v2), p);
   Float color_2 = edgeFunction(frame.location(v3), frame.location(v1), p);
@@ -137,7 +158,7 @@ void colorPixel(Vector p, float antiali) {
   fill(255*color_1, 255*color_2, 255*color_3,antiali);
 }
 
-boolean isInside(Vector p) {
+public boolean isInside(Vector p) {
   boolean e1 = edgeFunction(frame.location(v1), frame.location(v2), p) >= 0;
   boolean e2 = edgeFunction(frame.location(v2), frame.location(v3), p) >= 0;
   boolean e3 = edgeFunction(frame.location(v3), frame.location(v1), p) >= 0;
@@ -145,7 +166,7 @@ boolean isInside(Vector p) {
   return (e1 && e2 && e3) || (!e1 && !e2 && !e3);
 }
 
-float edgeFunction(Vector a, Vector b, Vector c) {
+public float edgeFunction(Vector a, Vector b, Vector c) {
   float ax = a.x(), ay = a.y();
   float bx = b.x(),  by = b.y();
   float cx = c.x(), cy = c.y();
@@ -153,7 +174,7 @@ float edgeFunction(Vector a, Vector b, Vector c) {
   return (cx - ax) * (by - ay) - (cy - ay) * (bx - ax);
 }
 
-void randomizeTriangle() {
+public void randomizeTriangle() {
   int low = -width/2;
   int high = width/2;
   v1 = new Vector(random(low, high), random(low, high));
@@ -161,7 +182,7 @@ void randomizeTriangle() {
   v3 = new Vector(random(low, high), random(low, high));
 }
 
-void drawTriangleHint() {
+public void drawTriangleHint() {
   pushStyle();
   noFill();
   strokeWeight(2);
@@ -175,7 +196,7 @@ void drawTriangleHint() {
   popStyle();
 }
 
-void keyPressed() {
+public void keyPressed() {
   if (key == 'g')
   gridHint = !gridHint;
   if (key == 't')
@@ -203,6 +224,16 @@ void keyPressed() {
   anti = anti*2;
     if (anti > 8){
       anti=1;
+    }
+  }
+}
+  public void settings() {  size(1024, 810, renderer); }
+  static public void main(String[] passedArgs) {
+    String[] appletArgs = new String[] { "raster_ws" };
+    if (passedArgs != null) {
+      PApplet.main(concat(appletArgs, passedArgs));
+    } else {
+      PApplet.main(appletArgs);
     }
   }
 }
